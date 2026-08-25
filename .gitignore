@@ -12,5 +12,7 @@ bin/
 coverage.out
 *.test
 vendor/
-.yaml
-!.yaml.example
+*.yaml
+!*.yaml.example
+/config/*.yaml
+!/config/*.yaml.exmple
