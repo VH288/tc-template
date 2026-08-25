@@ -1,0 +1,22 @@
+app:
+  name: tc-template
+  env: development # development | staging | production
+  secret: SECRET_KEY
+  version: 0.1.0
+
+http:
+  port: "8081"
+  read_timeout: 15s
+  write_timeout: 15s
+  shutdown_timeout: 10s
+
+postgres:
+  host: 127.0.0.1
+  port: "5432"
+  user: root
+  password: password
+  dbname: sample
+  sslmode: disable
+  max_open_conns: 25
+  max_idle_conns: 5
+  conn_max_lifetime: 30m
