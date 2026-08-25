@@ -4,15 +4,18 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"os"
 
+	sdklogger "github.com/VH288/tc-sdk/logger"
 	"github.com/VH288/tc-template/internal/config"
 	"github.com/VH288/tc-template/internal/infrastructure/database"
 )
 
 func wireInfra(ctx context.Context, cfg *config.Config) (*Infra, error) {
 	// temp
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logger := sdklogger.New(sdklogger.Config{
+		ServiceName: cfg.App.Name,
+		LogLevel:    cfg.Observability.LogLevel,
+	})
 	slog.SetDefault(logger)
 
 	db, err := database.NewPostgres(cfg.Postgres)

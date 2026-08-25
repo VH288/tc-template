@@ -11,9 +11,10 @@ import (
 )
 
 type Config struct {
-	App      AppConfig      `mapstructure:"app"`
-	HTTP     HTTPConfig     `mapstructure:"http"`
-	Postgres PostgresConfig `mapstructure:"postgres"`
+	App           AppConfig           `mapstructure:"app"`
+	HTTP          HTTPConfig          `mapstructure:"http"`
+	Observability ObservabilityConfig `mapstructure:"observability"`
+	Postgres      PostgresConfig      `mapstructure:"postgres"`
 }
 
 type AppConfig struct {
@@ -47,6 +48,10 @@ func (p PostgresConfig) DSN() string {
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		p.Host, p.Port, p.User, p.Password, p.DBName, p.SSLMode,
 	)
+}
+
+type ObservabilityConfig struct {
+	LogLevel string `mapstructure:"log_level"`
 }
 
 func Load(path string) (*Config, error) {
@@ -91,6 +96,7 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("postgres.max_open_conns", 25)
 	v.SetDefault("postgres.max_idle_conns", 5)
 	v.SetDefault("postgres.conn_max_lifetime", "30m")
+	v.SetDefault("observability.log_level", "info")
 }
 
 func bindEnv(v *viper.Viper) {
