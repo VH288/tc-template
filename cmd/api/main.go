@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"tc-template/internal/app/bootstrap"
-	"tc-template/internal/config"
+	"github.com/VH288/tc-template/internal/app/bootstrap"
+	"github.com/VH288/tc-template/internal/config"
 )
 
 func main() {

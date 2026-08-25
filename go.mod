@@ -1,4 +1,4 @@
-module tc-template
+module github.com/VH288/tc-template
 
 go 1.26.5
 

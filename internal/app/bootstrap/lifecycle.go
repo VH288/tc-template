@@ -3,7 +3,7 @@ package bootstrap
 import (
 	"context"
 
-	"tc-template/internal/app/lifecycle"
+	"github.com/VH288/tc-template/internal/app/lifecycle"
 )
 
 // wireLifecycle registers graceful shutdown hooks (LIFO).

@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"os"
 
-	"tc-template/internal/config"
-	"tc-template/internal/infrastructure/database"
+	"github.com/VH288/tc-template/internal/config"
+	"github.com/VH288/tc-template/internal/infrastructure/database"
 )
 
 func wireInfra(ctx context.Context, cfg *config.Config) (*Infra, error) {

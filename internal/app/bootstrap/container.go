@@ -3,8 +3,8 @@ package bootstrap
 import (
 	"log/slog"
 
-	"tc-template/internal/app/lifecycle"
-	"tc-template/internal/config"
+	"github.com/VH288/tc-template/internal/app/lifecycle"
+	"github.com/VH288/tc-template/internal/config"
 
 	"github.com/jmoiron/sqlx"
 )

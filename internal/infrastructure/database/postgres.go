@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"tc-template/internal/config"
-
+	"github.com/VH288/tc-template/internal/config"
 	"github.com/jmoiron/sqlx"
 )
 

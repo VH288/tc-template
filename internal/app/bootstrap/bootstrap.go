@@ -3,7 +3,7 @@ package bootstrap
 import (
 	"context"
 
-	"tc-template/internal/config"
+	"github.com/VH288/tc-template/internal/config"
 )
 
 func Build(ctx context.Context, cfg *config.Config) (*Container, error) {

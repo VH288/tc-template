@@ -75,7 +75,7 @@ func Load(path string) (*Config, error) {
 }
 
 func setDefaults(v *viper.Viper) {
-	v.SetDefault("app.name", "tc-template")
+	v.SetDefault("app.name", "github.com/VH288/tc-template")
 	v.SetDefault("app.env", "development")
 	v.SetDefault("app.version", "0.1.0")
 	v.SetDefault("http.port", "8081")
