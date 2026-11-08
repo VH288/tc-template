@@ -1,7 +1,11 @@
 package bootstrap
 
-type Domain struct{}
+type Domain struct {
+	Sample *Sample
+}
 
 func getDomain(infra *Infra) Domain {
-	return Domain{}
+	return Domain{
+		Sample: wireSample(infra),
+	}
 }

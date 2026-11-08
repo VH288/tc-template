@@ -1,0 +1,46 @@
+package middleware
+
+import (
+	"net/http"
+	"strings"
+
+	apperrors "github.com/VH288/tc-template/internal/pkg/errors"
+	"github.com/VH288/tc-template/internal/pkg/formatter"
+)
+
+// APIKeyAuth protects routes with X-API-Key when a non-placeholder secret is configured.
+func APIKeyAuth(secret string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if secret == "" || secret == "SECRET_KEY" || secret == "CHANGE_ME" {
+				next.ServeHTTP(w, r)
+				return
+			}
+			if r.Header.Get("X-API-Key") != secret {
+				formatter.Fail(w, apperrors.ErrUnauthorized)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+// SkipPaths returns a middleware that bypasses auth for exact path prefixes.
+func SkipPaths(prefixes []string, auth func(http.Handler) http.Handler) func(http.Handler) http.Handler {
+	if auth == nil {
+		return func(next http.Handler) http.Handler { return next }
+	}
+	protected := auth
+	return func(next http.Handler) http.Handler {
+		guarded := protected(next)
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			for _, prefix := range prefixes {
+				if strings.HasPrefix(r.URL.Path, prefix) {
+					next.ServeHTTP(w, r)
+					return
+				}
+			}
+			guarded.ServeHTTP(w, r)
+		})
+	}
+}

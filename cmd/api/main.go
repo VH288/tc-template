@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/VH288/tc-template/internal/app/bootstrap"
+	"github.com/VH288/tc-template/internal/app/server"
 	"github.com/VH288/tc-template/internal/config"
 )
 
@@ -32,7 +33,28 @@ func run() error {
 		return err
 	}
 
-	_ = container
+	httpSrv := server.NewHTTP(
+		":"+cfg.HTTP.Port,
+		container.HTTPRouter(),
+		container.Logger,
+		cfg.HTTP.ReadTimeout,
+		cfg.HTTP.WriteTimeout,
+	)
 
+	errCh := make(chan error, 1)
+	go func() { errCh <- httpSrv.Start() }()
+
+	container.Lifecycle.Add(func(ctx context.Context) error {
+		return httpSrv.Shutdown(ctx)
+	})
+
+	go func() {
+		if err := <-errCh; err != nil {
+			container.Logger.Error("server error", "error", err)
+			cancel()
+		}
+	}()
+
+	container.Lifecycle.Wait(ctx)
 	return nil
 }

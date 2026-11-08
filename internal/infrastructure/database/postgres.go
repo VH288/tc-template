@@ -7,6 +7,8 @@ import (
 
 	"github.com/VH288/tc-template/internal/config"
 	"github.com/jmoiron/sqlx"
+
+	_ "github.com/lib/pq"
 )
 
 func NewPostgres(cfg config.PostgresConfig) (*sqlx.DB, error) {
