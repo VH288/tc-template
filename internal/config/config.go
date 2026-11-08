@@ -13,6 +13,7 @@ import (
 type Config struct {
 	App           AppConfig           `mapstructure:"app"`
 	HTTP          HTTPConfig          `mapstructure:"http"`
+	GRPC          GRPCConfig          `mapstructure:"grpc"`
 	Observability ObservabilityConfig `mapstructure:"observability"`
 	Postgres      PostgresConfig      `mapstructure:"postgres"`
 }
@@ -28,6 +29,11 @@ type HTTPConfig struct {
 	Port            string        `mapstructure:"port"`
 	ReadTimeout     time.Duration `mapstructure:"read_timeout"`
 	WriteTimeout    time.Duration `mapstructure:"write_timeout"`
+	ShutdownTimeout time.Duration `mapstructure:"shutdown_timeout"`
+}
+
+type GRPCConfig struct {
+	Port            string        `mapstructure:"port"`
 	ShutdownTimeout time.Duration `mapstructure:"shutdown_timeout"`
 }
 
@@ -87,6 +93,8 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("http.read_timeout", "15s")
 	v.SetDefault("http.write_timeout", "15s")
 	v.SetDefault("http.shutdown_timeout", "10s")
+	v.SetDefault("grpc.port", "7000")
+	v.SetDefault("grpc.shutdown_timeout", "10s")
 	v.SetDefault("postgres.host", "127.0.0.1")
 	v.SetDefault("postgres.port", "5432")
 	v.SetDefault("postgres.user", "root")
@@ -103,6 +111,7 @@ func bindEnv(v *viper.Viper) {
 	_ = v.BindEnv("app.name", "APP_NAME")
 	_ = v.BindEnv("app.secret", "APP_SECRET")
 	_ = v.BindEnv("http.port", "PORT", "HTTP_PORT")
+	_ = v.BindEnv("grpc.port", "GRPC_PORT")
 	_ = v.BindEnv("postgres.host", "DB_HOST")
 	_ = v.BindEnv("postgres.port", "DB_PORT")
 	_ = v.BindEnv("postgres.user", "DB_USER")

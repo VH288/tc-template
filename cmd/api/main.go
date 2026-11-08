@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/VH288/tc-template/internal/app/bootstrap"
+	grpcapp "github.com/VH288/tc-template/internal/app/grpc"
 	"github.com/VH288/tc-template/internal/app/server"
 	"github.com/VH288/tc-template/internal/config"
 )
@@ -40,14 +41,26 @@ func run() error {
 		cfg.HTTP.ReadTimeout,
 		cfg.HTTP.WriteTimeout,
 	)
+	grpcServer := grpcapp.NewServer(grpcapp.Dependencies{
+		Sample: container.Domain.Sample.GRPC,
+	})
 
-	errCh := make(chan error, 1)
+	grpcSrv, err := server.NewGRPC(":"+cfg.GRPC.Port, grpcServer, container.Logger)
+	if err != nil {
+		return err
+	}
+
+	errCh := make(chan error, 2)
 	go func() { errCh <- httpSrv.Start() }()
+	go func() { errCh <- grpcSrv.Start() }()
 
 	container.Lifecycle.Add(func(ctx context.Context) error {
 		return httpSrv.Shutdown(ctx)
 	})
-
+	container.Lifecycle.Add(func(ctx context.Context) error {
+		grpcSrv.GracefulStop()
+		return nil
+	})
 	go func() {
 		if err := <-errCh; err != nil {
 			container.Logger.Error("server error", "error", err)

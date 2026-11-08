@@ -3,8 +3,11 @@ package server
 import (
 	"context"
 	"log/slog"
+	"net"
 	"net/http"
 	"time"
+
+	"google.golang.org/grpc"
 )
 
 type HTTPServer struct {
@@ -35,4 +38,37 @@ func (s *HTTPServer) Start() error {
 func (s *HTTPServer) Shutdown(ctx context.Context) error {
 	s.logger.Info("http server shutting down")
 	return s.server.Shutdown(ctx)
+}
+
+type GRPCServer struct {
+	server   *grpc.Server
+	listener net.Listener
+	logger   *slog.Logger
+	addr     string
+}
+
+func NewGRPC(addr string, server *grpc.Server, logger *slog.Logger) (*GRPCServer, error) {
+	lis, err := net.Listen("tcp", addr)
+	if err != nil {
+		return nil, err
+	}
+	return &GRPCServer{
+		server:   server,
+		listener: lis,
+		logger:   logger,
+		addr:     addr,
+	}, nil
+}
+
+func (s *GRPCServer) Start() error {
+	s.logger.Info("grpc server starting", "addr", s.addr)
+	if err := s.server.Serve(s.listener); err != nil && err != grpc.ErrServerStopped {
+		return err
+	}
+	return nil
+}
+
+func (s *GRPCServer) GracefulStop() {
+	s.logger.Info("grpc server shutting down")
+	s.server.GracefulStop()
 }

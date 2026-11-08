@@ -7,3 +7,7 @@ type Logger interface {
 	Warn(ctx context.Context, msg string, args ...any)
 	Error(ctx context.Context, msg string, args ...any)
 }
+
+type GRPCMetrics interface {
+	IncRequest(method, result string)
+}

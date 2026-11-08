@@ -10,6 +10,10 @@ http:
   write_timeout: 15s
   shutdown_timeout: 10s
 
+grpc:
+  port: "7000"
+  shutdown_timeout: 10s
+
 postgres:
   host: 127.0.0.1
   port: "5432"

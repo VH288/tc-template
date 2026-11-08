@@ -33,9 +33,20 @@ func (NoopLogger) Info(context.Context, string, ...any)  {}
 func (NoopLogger) Warn(context.Context, string, ...any)  {}
 func (NoopLogger) Error(context.Context, string, ...any) {}
 
+type GRPCMetrics struct{}
+
+func NewGRPCMetrics() *GRPCMetrics { return &GRPCMetrics{} }
+func (GRPCMetrics) IncRequest(method, result string) {}
+
+type NoopGRPCMetrics struct{}
+
+func (NoopGRPCMetrics) IncRequest(string, string) {}
+
 var (
-	_ ports.Logger = SlogLogger{}
-	_ ports.Logger = NoopLogger{}
+	_ ports.Logger      = SlogLogger{}
+	_ ports.Logger      = NoopLogger{}
+	_ ports.GRPCMetrics = GRPCMetrics{}
+	_ ports.GRPCMetrics = NoopGRPCMetrics{}
 )
 
 func DiscardLogger() *slog.Logger {

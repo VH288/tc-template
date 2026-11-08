@@ -9,6 +9,7 @@ import (
 
 type Sample struct {
 	HTTP *samplehandler.HTTPHandler
+	GRPC *samplehandler.GRPCHandler
 }
 
 func wireSample(infra *Infra) *Sample {
@@ -18,5 +19,6 @@ func wireSample(infra *Infra) *Sample {
 
 	return &Sample{
 		HTTP: samplehandler.NewHTTPHandler(uc),
+		GRPC: samplehandler.NewGRPCHandler(uc, telemetry.NewGRPCMetrics()),
 	}
 }
