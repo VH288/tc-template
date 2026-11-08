@@ -1,4 +1,4 @@
-.PHONY: help run run-api run-grpc proto migrate-up migrate-down migrate-status test test-unit tidy build lint
+.PHONY: help run run-api run-grpc proto migrate-up migrate-down migrate-status test test-unit tidy build lint doc-sync
 
 APP_NAME ?= tc-template
 CONFIG ?= configs/config.yaml
@@ -18,6 +18,7 @@ help:
 	@echo "  tidy                - run go mod tidy"
 	@echo "  build               - build api, grpc, and migrate binaries"
 	@echo "  lint                - run go vet"
+	@echo "  doc-sync            - synchronize OpenAPI specs into swagger catalog"
 run: run-api
 
 run-api:
@@ -57,3 +58,6 @@ build:
 
 lint:
 	$(GO) vet ./...
+
+doc-sync:
+	$(GO) run scripts/sync-docs.go

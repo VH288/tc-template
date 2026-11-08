@@ -1,0 +1,9 @@
+{
+  "urls": [
+    {
+      "name": "Sample API",
+      "url": "/docs/sample/openapi.json"
+    }
+  ],
+  "urls.primaryName": "Sample API"
+}

@@ -42,6 +42,7 @@ func (c *Container) HTTPRouter() http.Handler {
 
 func (c *Container) middlewares() []func(http.Handler) http.Handler {
 	return []func(http.Handler) http.Handler{
+		middleware.CORS,
 		middleware.Recoverer(c.Logger),
 		middleware.RequestID,
 		middleware.Tracing(c.Config.Observability.ServiceName),

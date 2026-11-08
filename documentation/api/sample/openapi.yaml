@@ -1,0 +1,494 @@
+openapi: 3.0.3
+info:
+  title: Sample API
+  description: RESTful API documentation for Sample CRUD operations in tc-template.
+  version: 0.1.0
+servers:
+  - url: http://localhost:8081/api/v1
+    description: Local development server
+paths:
+  /samples:
+    post:
+      summary: Create sample
+      description: Creates a new sample record.
+      operationId: createSample
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSampleRequest'
+            example:
+              name: "Rock Festival 2026 Ticket"
+              description: "VIP backstage access pass"
+              status: "active"
+      responses:
+        '201':
+          description: Sample successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleSampleResponse'
+              example:
+                success: true
+                message: "sample created"
+                data:
+                  id: "7f000001-9310-1df0-8193-10bb4e9e0000"
+                  name: "Rock Festival 2026 Ticket"
+                  description: "VIP backstage access pass"
+                  status: "active"
+                  created_at: "2026-11-08T09:30:00Z"
+                  updated_at: "2026-11-08T09:30:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      summary: List samples
+      description: Returns a paginated list of samples ordered by creation date descending.
+      operationId: listSamples
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number (starts at 1)
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: per_page
+          in: query
+          description: Items per page (clamped between 1 and 100)
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: List of samples successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSampleResponse'
+              example:
+                success: true
+                message: "ok"
+                data:
+                  - id: "7f000001-9310-1df0-8193-10bb4e9e0000"
+                    name: "Rock Festival 2026 Ticket"
+                    description: "VIP backstage access pass"
+                    status: "active"
+                    created_at: "2026-11-08T09:30:00Z"
+                    updated_at: "2026-11-08T09:30:00Z"
+                meta:
+                  page: 1
+                  per_page: 10
+                  total: 1
+                  total_pages: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /samples/{id}:
+    get:
+      summary: Get sample by ID
+      description: Retrieves a single sample entity by its UUID.
+      operationId: getSampleByID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Sample UUID
+          schema:
+            type: string
+            format: uuid
+            example: "7f000001-9310-1df0-8193-10bb4e9e0000"
+      responses:
+        '200':
+          description: Sample found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleSampleResponse'
+              example:
+                success: true
+                message: "ok"
+                data:
+                  id: "7f000001-9310-1df0-8193-10bb4e9e0000"
+                  name: "Rock Festival 2026 Ticket"
+                  description: "VIP backstage access pass"
+                  status: "active"
+                  created_at: "2026-11-08T09:30:00Z"
+                  updated_at: "2026-11-08T09:30:00Z"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: Update sample
+      description: Updates the name, description, and status of an existing sample entity.
+      operationId: updateSample
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Sample UUID
+          schema:
+            type: string
+            format: uuid
+            example: "7f000001-9310-1df0-8193-10bb4e9e0000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSampleRequest'
+            example:
+              name: "Rock Festival 2026 Ticket - Sold Out"
+              description: "VIP backstage access pass - allocation exhausted"
+              status: "inactive"
+      responses:
+        '200':
+          description: Sample successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleSampleResponse'
+              example:
+                success: true
+                message: "sample updated"
+                data:
+                  id: "7f000001-9310-1df0-8193-10bb4e9e0000"
+                  name: "Rock Festival 2026 Ticket - Sold Out"
+                  description: "VIP backstage access pass - allocation exhausted"
+                  status: "inactive"
+                  created_at: "2026-11-08T09:30:00Z"
+                  updated_at: "2026-11-08T09:45:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete sample
+      description: Deletes a sample entity by UUID.
+      operationId: deleteSample
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Sample UUID
+          schema:
+            type: string
+            format: uuid
+            example: "7f000001-9310-1df0-8193-10bb4e9e0000"
+      responses:
+        '200':
+          description: Sample successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteSampleResponse'
+              example:
+                success: true
+                message: "sample deleted"
+                data: null
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API Key authentication header. Bypassed in development mode when unconfigured.
+
+  schemas:
+    Sample:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "7f000001-9310-1df0-8193-10bb4e9e0000"
+        name:
+          type: string
+          example: "Concert Ticket"
+        description:
+          type: string
+          example: "VIP Pass"
+        status:
+          type: string
+          enum: [active, inactive]
+          example: "active"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-11-08T09:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-11-08T09:30:00Z"
+
+    CreateSampleRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: Name of the sample
+          example: "Concert Ticket"
+        description:
+          type: string
+          maxLength: 500
+          description: Optional detailed description
+          example: "VIP Pass"
+        status:
+          type: string
+          enum: [active, inactive]
+          default: active
+          description: Operational status (defaults to active)
+          example: "active"
+
+    UpdateSampleRequest:
+      type: object
+      required:
+        - name
+        - status
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: Name of the sample
+          example: "Concert Ticket Updated"
+        description:
+          type: string
+          maxLength: 500
+          description: Optional description
+          example: "Updated VIP Pass"
+        status:
+          type: string
+          enum: [active, inactive]
+          description: Operational status
+          example: "inactive"
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        per_page:
+          type: integer
+          example: 10
+        total:
+          type: integer
+          format: int64
+          example: 1
+        total_pages:
+          type: integer
+          example: 1
+
+    SingleSampleResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "sample created"
+        data:
+          $ref: '#/components/schemas/Sample'
+
+    ListSampleResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+        - meta
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "ok"
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sample'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    DeleteSampleResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "sample deleted"
+        data:
+          nullable: true
+          example: null
+
+    ErrorBody:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          example: "validation failed"
+        details:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            name: "failed on 'min' validation"
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          $ref: '#/components/schemas/ErrorBody'
+
+  responses:
+    BadRequestError:
+      description: Bad request (e.g. invalid JSON payload)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "BAD_REQUEST"
+              message: "invalid request body"
+
+    UnauthorizedError:
+      description: Unauthorized (missing or invalid X-API-Key)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "UNAUTHORIZED"
+              message: "unauthorized"
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "NOT_FOUND"
+              message: "resource not found"
+
+    ConflictError:
+      description: Resource conflict or version mismatch
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "CONFLICT"
+              message: "resource already exists"
+
+    ValidationError:
+      description: Validation failed on request parameters or body
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "VALIDATION_ERROR"
+              message: "validation failed"
+              details:
+                name: "failed on 'min' validation"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "INTERNAL_ERROR"
+              message: "internal server error"

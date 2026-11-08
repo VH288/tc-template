@@ -91,3 +91,26 @@ func TestMetricsAuth(t *testing.T) {
 	handler.ServeHTTP(rec, req)
 	assert.Equal(t, http.StatusOK, rec.Code)
 }
+
+func TestCORSMiddleware(t *testing.T) {
+	handler := middleware.CORS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("ok"))
+	}))
+
+	// Test regular GET request gets CORS headers
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/samples", nil)
+	handler.ServeHTTP(rec, req)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "*", rec.Header().Get("Access-Control-Allow-Origin"))
+	assert.Contains(t, rec.Header().Get("Access-Control-Allow-Methods"), "GET")
+
+	// Test OPTIONS preflight request
+	rec = httptest.NewRecorder()
+	req = httptest.NewRequest(http.MethodOptions, "/api/v1/samples", nil)
+	handler.ServeHTTP(rec, req)
+	assert.Equal(t, http.StatusNoContent, rec.Code)
+	assert.Equal(t, "*", rec.Header().Get("Access-Control-Allow-Origin"))
+	assert.Contains(t, rec.Header().Get("Access-Control-Allow-Headers"), "X-API-Key")
+}
