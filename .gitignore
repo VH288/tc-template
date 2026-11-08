@@ -16,3 +16,4 @@ vendor/
 !*.yaml.example
 /config/*.yaml
 !/config/*.yaml.exmple
+tmp/
