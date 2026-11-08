@@ -33,6 +33,8 @@ func (c *Container) HTTPRouter() http.Handler {
 	return router.New(router.Dependencies{
 		SampleHTTP:  c.Domain.Sample.HTTP,
 		Middlewares: c.middlewares(),
+		MetricsPath: c.Config.Observability.MetricsPath,
+		MetricsAuth: middleware.MetricsAuth(c.Config.App.Secret),
 		APIAuth:     auth,
 		DB:          c.Infra.DB,
 	})
@@ -42,6 +44,8 @@ func (c *Container) middlewares() []func(http.Handler) http.Handler {
 	return []func(http.Handler) http.Handler{
 		middleware.Recoverer(c.Logger),
 		middleware.RequestID,
+		middleware.Tracing(c.Config.Observability.ServiceName),
+		middleware.Metrics,
 		middleware.Logging(c.Logger),
 	}
 }

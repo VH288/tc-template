@@ -3,15 +3,21 @@ package middleware
 import (
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
 
 	sdklogger "github.com/VH288/tc-sdk/logger"
+	"github.com/VH288/tc-template/internal/infrastructure/metrics"
 	"github.com/VH288/tc-template/internal/pkg/constant"
 	apperrors "github.com/VH288/tc-template/internal/pkg/errors"
 	"github.com/VH288/tc-template/internal/pkg/formatter"
 	"github.com/VH288/tc-template/internal/pkg/helper"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 type statusWriter struct {
@@ -70,6 +76,49 @@ func Recoverer(base *slog.Logger) func(http.Handler) http.Handler {
 				}
 			}()
 			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func Metrics(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
+		next.ServeHTTP(sw, r)
+
+		path := routePattern(r)
+		metrics.HTTPRequestsTotal.WithLabelValues(r.Method, path, strconv.Itoa(sw.status)).Inc()
+		metrics.HTTPRequestDuration.WithLabelValues(r.Method, path).Observe(time.Since(start).Seconds())
+	})
+}
+
+func routePattern(r *http.Request) string {
+	if rc := chi.RouteContext(r.Context()); rc != nil {
+		if pattern := rc.RoutePattern(); pattern != "" {
+			return pattern
+		}
+	}
+	return r.URL.Path
+}
+
+func Tracing(serviceName string) func(http.Handler) http.Handler {
+	tracer := otel.Tracer(serviceName)
+	propagator := otel.GetTextMapPropagator()
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := propagator.Extract(r.Context(), propagation.HeaderCarrier(r.Header))
+			ctx, span := tracer.Start(ctx, r.Method+" "+r.URL.Path)
+			defer span.End()
+
+			span.SetAttributes(
+				attribute.String("http.method", r.Method),
+				attribute.String("http.route", r.URL.Path),
+			)
+
+			sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
+			next.ServeHTTP(sw, r.WithContext(ctx))
+			span.SetAttributes(attribute.Int("http.status_code", sw.status))
 		})
 	}
 }

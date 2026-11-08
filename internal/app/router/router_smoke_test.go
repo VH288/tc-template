@@ -74,7 +74,7 @@ func (m *smokeMemRepo) Delete(ctx context.Context, id string) error {
 }
 
 func buildTestHandler(repo sample.Repository, secret string) http.Handler {
-	uc := usecase.New(repo, telemetry.NoopLogger{})
+	uc := usecase.New(repo, telemetry.NoopLogger{}, telemetry.NoopTracer{}, telemetry.NoopSampleMetrics{})
 	h := samplehandler.NewHTTPHandler(uc)
 
 	auth := middleware.SkipPaths(
@@ -87,6 +87,7 @@ func buildTestHandler(repo sample.Repository, secret string) http.Handler {
 		Middlewares: []func(http.Handler) http.Handler{
 			middleware.Recoverer(telemetry.DiscardLogger()),
 			middleware.RequestID,
+			middleware.Metrics,
 			middleware.Logging(telemetry.DiscardLogger()),
 		},
 		APIAuth: auth,
@@ -174,8 +175,13 @@ func TestSmokeRoutes(t *testing.T) {
 	require.False(t, errResp.Success)
 	require.NotNil(t, errResp.Error)
 	require.Equal(t, string(apperrors.CodeValidation), errResp.Error.Code)
-}
 
+	// 9. GET /metrics
+	rr = testutil.PerformRequest(t, appRouter, http.MethodGet, "/metrics", nil)
+	testutil.AssertStatus(t, rr, http.StatusOK)
+	require.Contains(t, rr.Body.String(), "http_requests_total")
+	require.Contains(t, rr.Body.String(), "http_request_duration_seconds")
+}
 func TestSmokeAuth(t *testing.T) {
 	repo := newSmokeMemRepo()
 	appRouter := buildTestHandler(repo, "custom-secret-key-123")

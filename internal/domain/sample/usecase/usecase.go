@@ -10,18 +10,33 @@ import (
 )
 
 type SampleUsecase struct {
-	repo sample.Repository
-	log  ports.Logger
+	repo    sample.Repository
+	log     ports.Logger
+	trace   ports.Tracer
+	metrics ports.SampleMetrics
 }
 
-func New(repo sample.Repository, log ports.Logger) *SampleUsecase {
+func New(
+	repo sample.Repository,
+	log ports.Logger,
+	trace ports.Tracer,
+	metrics ports.SampleMetrics,
+) *SampleUsecase {
 	return &SampleUsecase{
-		repo: repo,
-		log:  log,
+		repo:    repo,
+		log:     log,
+		trace:   trace,
+		metrics: metrics,
 	}
 }
 
 func (u *SampleUsecase) Create(ctx context.Context, name, description, status string) (*entity.Sample, error) {
+	if u.trace != nil {
+		var end func()
+		ctx, end = u.trace.Start(ctx, "sample.usecase.Create")
+		defer end()
+	}
+
 	if status == "" {
 		status = entity.StatusActive
 	}
@@ -33,12 +48,18 @@ func (u *SampleUsecase) Create(ctx context.Context, name, description, status st
 	}
 
 	if err := u.repo.Create(ctx, s); err != nil {
+		if u.metrics != nil {
+			u.metrics.IncOperation("create", "error")
+		}
 		if u.log != nil {
 			u.log.Error(ctx, "failed to create sample", "error", err)
 		}
 		return nil, err
 	}
 
+	if u.metrics != nil {
+		u.metrics.IncOperation("create", "success")
+	}
 	if u.log != nil {
 		u.log.Info(ctx, "sample created", "id", s.ID)
 	}
@@ -46,17 +67,60 @@ func (u *SampleUsecase) Create(ctx context.Context, name, description, status st
 }
 
 func (u *SampleUsecase) GetByID(ctx context.Context, id string) (*entity.Sample, error) {
-	return u.repo.GetByID(ctx, id)
+	if u.trace != nil {
+		var end func()
+		ctx, end = u.trace.Start(ctx, "sample.usecase.GetByID")
+		defer end()
+	}
+
+	s, err := u.repo.GetByID(ctx, id)
+	if err != nil {
+		if u.metrics != nil {
+			u.metrics.IncOperation("get", "error")
+		}
+		return nil, err
+	}
+
+	if u.metrics != nil {
+		u.metrics.IncOperation("get", "success")
+	}
+	return s, nil
 }
 
 func (u *SampleUsecase) List(ctx context.Context, page, perPage int) ([]entity.Sample, int64, error) {
+	if u.trace != nil {
+		var end func()
+		ctx, end = u.trace.Start(ctx, "sample.usecase.List")
+		defer end()
+	}
+
 	page, perPage, offset := utils.NormalizePagination(page, perPage)
-	return u.repo.List(ctx, perPage, offset)
+	items, total, err := u.repo.List(ctx, perPage, offset)
+	if err != nil {
+		if u.metrics != nil {
+			u.metrics.IncOperation("list", "error")
+		}
+		return nil, 0, err
+	}
+
+	if u.metrics != nil {
+		u.metrics.IncOperation("list", "success")
+	}
+	return items, total, nil
 }
 
 func (u *SampleUsecase) Update(ctx context.Context, id, name, description, status string) (*entity.Sample, error) {
+	if u.trace != nil {
+		var end func()
+		ctx, end = u.trace.Start(ctx, "sample.usecase.Update")
+		defer end()
+	}
+
 	existing, err := u.repo.GetByID(ctx, id)
 	if err != nil {
+		if u.metrics != nil {
+			u.metrics.IncOperation("update", "error")
+		}
 		return nil, err
 	}
 
@@ -65,12 +129,18 @@ func (u *SampleUsecase) Update(ctx context.Context, id, name, description, statu
 	existing.Status = status
 
 	if err := u.repo.Update(ctx, existing); err != nil {
+		if u.metrics != nil {
+			u.metrics.IncOperation("update", "error")
+		}
 		if u.log != nil {
 			u.log.Error(ctx, "failed to update sample", "id", id, "error", err)
 		}
 		return nil, err
 	}
 
+	if u.metrics != nil {
+		u.metrics.IncOperation("update", "success")
+	}
 	if u.log != nil {
 		u.log.Info(ctx, "sample updated", "id", existing.ID)
 	}
@@ -78,13 +148,25 @@ func (u *SampleUsecase) Update(ctx context.Context, id, name, description, statu
 }
 
 func (u *SampleUsecase) Delete(ctx context.Context, id string) error {
+	if u.trace != nil {
+		var end func()
+		ctx, end = u.trace.Start(ctx, "sample.usecase.Delete")
+		defer end()
+	}
+
 	if err := u.repo.Delete(ctx, id); err != nil {
+		if u.metrics != nil {
+			u.metrics.IncOperation("delete", "error")
+		}
 		if u.log != nil {
 			u.log.Error(ctx, "failed to delete sample", "id", id, "error", err)
 		}
 		return err
 	}
 
+	if u.metrics != nil {
+		u.metrics.IncOperation("delete", "success")
+	}
 	if u.log != nil {
 		u.log.Info(ctx, "sample deleted", "id", id)
 	}

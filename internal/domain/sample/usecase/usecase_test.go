@@ -77,7 +77,7 @@ func (m *memRepo) Delete(ctx context.Context, id string) error {
 
 func TestSampleUsecase_Create(t *testing.T) {
 	repo := newMemRepo()
-	uc := usecase.New(repo, telemetry.NoopLogger{})
+	uc := usecase.New(repo, telemetry.NoopLogger{}, telemetry.NoopTracer{}, telemetry.NoopSampleMetrics{})
 	ctx := context.Background()
 
 	// Default status
@@ -94,7 +94,7 @@ func TestSampleUsecase_Create(t *testing.T) {
 
 func TestSampleUsecase_GetByID(t *testing.T) {
 	repo := newMemRepo()
-	uc := usecase.New(repo, telemetry.NoopLogger{})
+	uc := usecase.New(repo, telemetry.NoopLogger{}, telemetry.NoopTracer{}, telemetry.NoopSampleMetrics{})
 	ctx := context.Background()
 
 	created, err := uc.Create(ctx, "Sample", "Desc", "")
@@ -110,7 +110,7 @@ func TestSampleUsecase_GetByID(t *testing.T) {
 
 func TestSampleUsecase_List(t *testing.T) {
 	repo := newMemRepo()
-	uc := usecase.New(repo, telemetry.NoopLogger{})
+	uc := usecase.New(repo, telemetry.NoopLogger{}, telemetry.NoopTracer{}, telemetry.NoopSampleMetrics{})
 	ctx := context.Background()
 
 	_, _ = uc.Create(ctx, "Sample 1", "Desc", "")
@@ -124,7 +124,7 @@ func TestSampleUsecase_List(t *testing.T) {
 
 func TestSampleUsecase_Update(t *testing.T) {
 	repo := newMemRepo()
-	uc := usecase.New(repo, telemetry.NoopLogger{})
+	uc := usecase.New(repo, telemetry.NoopLogger{}, telemetry.NoopTracer{}, telemetry.NoopSampleMetrics{})
 	ctx := context.Background()
 
 	created, err := uc.Create(ctx, "Old Name", "Old Desc", entity.StatusActive)
@@ -143,7 +143,7 @@ func TestSampleUsecase_Update(t *testing.T) {
 
 func TestSampleUsecase_Delete(t *testing.T) {
 	repo := newMemRepo()
-	uc := usecase.New(repo, telemetry.NoopLogger{})
+	uc := usecase.New(repo, telemetry.NoopLogger{}, telemetry.NoopTracer{}, telemetry.NoopSampleMetrics{})
 	ctx := context.Background()
 
 	created, err := uc.Create(ctx, "To Delete", "Desc", "")

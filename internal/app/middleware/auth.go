@@ -25,6 +25,11 @@ func APIKeyAuth(secret string) func(http.Handler) http.Handler {
 	}
 }
 
+// MetricsAuth protects the metrics endpoint; uses same API key semantics.
+func MetricsAuth(secret string) func(http.Handler) http.Handler {
+	return APIKeyAuth(secret)
+}
+
 // SkipPaths returns a middleware that bypasses auth for exact path prefixes.
 func SkipPaths(prefixes []string, auth func(http.Handler) http.Handler) func(http.Handler) http.Handler {
 	if auth == nil {

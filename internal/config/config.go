@@ -57,7 +57,12 @@ func (p PostgresConfig) DSN() string {
 }
 
 type ObservabilityConfig struct {
-	LogLevel string `mapstructure:"log_level"`
+	LogLevel         string  `mapstructure:"log_level"`
+	LokiURL          string  `mapstructure:"loki_url"`
+	TempoEndpoint    string  `mapstructure:"tempo_endpoint"`
+	MetricsPath      string  `mapstructure:"metrics_path"`
+	ServiceName      string  `mapstructure:"service_name"`
+	TraceSampleRatio float64 `mapstructure:"trace_sample_ratio"`
 }
 
 func Load(path string) (*Config, error) {
@@ -105,6 +110,11 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("postgres.max_idle_conns", 5)
 	v.SetDefault("postgres.conn_max_lifetime", "30m")
 	v.SetDefault("observability.log_level", "info")
+	v.SetDefault("observability.loki_url", "http://127.0.0.1:3100")
+	v.SetDefault("observability.tempo_endpoint", "127.0.0.1:4317")
+	v.SetDefault("observability.metrics_path", "/metrics")
+	v.SetDefault("observability.service_name", "tc-template")
+	v.SetDefault("observability.trace_sample_ratio", 1.0)
 }
 
 func bindEnv(v *viper.Viper) {
@@ -117,4 +127,6 @@ func bindEnv(v *viper.Viper) {
 	_ = v.BindEnv("postgres.user", "DB_USER")
 	_ = v.BindEnv("postgres.password", "DB_PASSWORD")
 	_ = v.BindEnv("postgres.dbname", "DB_NAME")
+	_ = v.BindEnv("observability.loki_url", "LOKI_URL")
+	_ = v.BindEnv("observability.tempo_endpoint", "TEMPO_ENDPOINT")
 }

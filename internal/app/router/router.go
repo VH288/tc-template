@@ -6,9 +6,9 @@ import (
 	samplehandler "github.com/VH288/tc-template/internal/domain/sample/handler"
 	sampletransport "github.com/VH288/tc-template/internal/domain/sample/transport"
 	"github.com/VH288/tc-template/internal/infrastructure/database"
+	"github.com/VH288/tc-template/internal/infrastructure/metrics"
 	"github.com/VH288/tc-template/internal/pkg/constant"
 	"github.com/VH288/tc-template/internal/pkg/formatter"
-
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
 	"github.com/jmoiron/sqlx"
@@ -17,6 +17,8 @@ import (
 type Dependencies struct {
 	SampleHTTP  *samplehandler.HTTPHandler
 	Middlewares []func(http.Handler) http.Handler
+	MetricsPath string
+	MetricsAuth func(http.Handler) http.Handler
 	APIAuth     func(http.Handler) http.Handler
 	DB          *sqlx.DB
 }
@@ -33,6 +35,15 @@ func New(deps Dependencies) http.Handler {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte(`{"service":"tc-template"}`))
 	})
+
+	if deps.MetricsPath == "" {
+		deps.MetricsPath = "/metrics"
+	}
+	metricsHandler := metrics.Handler()
+	if deps.MetricsAuth != nil {
+		metricsHandler = deps.MetricsAuth(metricsHandler)
+	}
+	r.Handle(deps.MetricsPath, metricsHandler)
 
 	r.Route("/api/v1", func(api chi.Router) {
 		api.Get("/health", func(w http.ResponseWriter, r *http.Request) {

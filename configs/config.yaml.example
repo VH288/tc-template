@@ -26,4 +26,9 @@ postgres:
   conn_max_lifetime: 30m
 
 observability:
-  log_level: info
+  log_level: info # debug | info | warn | error
+  loki_url: http://127.0.0.1:3100
+  tempo_endpoint: 127.0.0.1:4317
+  metrics_path: /metrics
+  service_name: tc-template
+  trace_sample_ratio: 1.0

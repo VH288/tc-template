@@ -15,8 +15,9 @@ type Sample struct {
 func wireSample(infra *Infra) *Sample {
 	repo := samplepersistence.NewPostgresRepository(infra.DB)
 	log := telemetry.NewSlogLogger()
-	uc := sampleusecase.New(repo, log)
-
+	trace := telemetry.NewTracer()
+	sampleMetrics := telemetry.NewSampleMetrics()
+	uc := sampleusecase.New(repo, log, trace, sampleMetrics)
 	return &Sample{
 		HTTP: samplehandler.NewHTTPHandler(uc),
 		GRPC: samplehandler.NewGRPCHandler(uc, telemetry.NewGRPCMetrics()),
