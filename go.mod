@@ -2,7 +2,7 @@ module github.com/VH288/tc-template
 
 go 1.27.0
 
-replace github.com/VH288/tc-sdk => ../tc-sdk
+// replace github.com/VH288/tc-sdk => ../tc-sdk
 
 require (
 	github.com/VH288/tc-sdk v0.0.0
