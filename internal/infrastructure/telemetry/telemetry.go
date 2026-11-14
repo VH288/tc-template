@@ -5,9 +5,9 @@ import (
 	"io"
 	"log/slog"
 
+	"github.com/VH288/tc-sdk/apm"
 	sdklogger "github.com/VH288/tc-sdk/logger"
 	"github.com/VH288/tc-template/internal/domain/ports"
-	"github.com/VH288/tc-template/internal/infrastructure/apm"
 	"github.com/VH288/tc-template/internal/infrastructure/metrics"
 )
 
@@ -16,7 +16,7 @@ type Tracer struct{}
 func NewTracer() *Tracer { return &Tracer{} }
 
 func (Tracer) Start(ctx context.Context, name string) (context.Context, func()) {
-	ctx, span := apm.Start(ctx, name)
+	ctx, span := apm.Tracer("tc-template").Start(ctx, name)
 	return ctx, func() {
 		span.End()
 	}
@@ -70,6 +70,7 @@ func (NoopTracer) Start(ctx context.Context, _ string) (context.Context, func())
 type NoopSampleMetrics struct{}
 
 func (NoopSampleMetrics) IncOperation(string, string) {}
+
 type NoopGRPCMetrics struct{}
 
 func (NoopGRPCMetrics) IncRequest(string, string) {}

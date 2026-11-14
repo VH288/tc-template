@@ -3,9 +3,9 @@ package bootstrap
 import (
 	"log/slog"
 
+	"github.com/VH288/tc-sdk/apm"
 	"github.com/VH288/tc-template/internal/app/lifecycle"
 	"github.com/VH288/tc-template/internal/config"
-	"github.com/VH288/tc-template/internal/infrastructure/apm"
 
 	"github.com/jmoiron/sqlx"
 )

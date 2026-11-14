@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/VH288/tc-sdk/apm"
 	sdklogger "github.com/VH288/tc-sdk/logger"
 	"github.com/VH288/tc-template/internal/config"
-	"github.com/VH288/tc-template/internal/infrastructure/apm"
 	"github.com/VH288/tc-template/internal/infrastructure/database"
 )
 
@@ -19,7 +19,11 @@ func wireInfra(ctx context.Context, cfg *config.Config) (*Infra, error) {
 	})
 	slog.SetDefault(logger)
 
-	apmProvider, err := apm.Init(ctx, cfg.Observability, logger)
+	apmProvider, err := apm.Init(ctx, apm.Config{
+		TempoEndpoint:    cfg.Observability.TempoEndpoint,
+		ServiceName:      cfg.Observability.ServiceName,
+		TraceSampleRatio: cfg.Observability.TraceSampleRatio,
+	}, logger)
 	if err != nil {
 		logger.Warn("apm init failed, continuing without remote traces", "error", err)
 	}
