@@ -3,9 +3,9 @@ package router
 import (
 	"net/http"
 
+	"github.com/VH288/tc-sdk/database"
 	samplehandler "github.com/VH288/tc-template/internal/domain/sample/handler"
 	sampletransport "github.com/VH288/tc-template/internal/domain/sample/transport"
-	"github.com/VH288/tc-template/internal/infrastructure/database"
 	"github.com/VH288/tc-template/internal/infrastructure/metrics"
 	"github.com/VH288/tc-template/internal/pkg/constant"
 	"github.com/VH288/tc-sdk/formatter"
