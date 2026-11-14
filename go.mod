@@ -2,10 +2,10 @@ module github.com/VH288/tc-template
 
 go 1.27.0
 
-replace github.com/VH288/tc-sdk => ../tc-sdk
+// replace github.com/VH288/tc-sdk => ../tc-sdk
 
 require (
-	github.com/VH288/tc-sdk v0.0.0
+	github.com/VH288/tc-sdk v1.0.1
 	github.com/go-chi/chi/v5 v5.5.0
 	github.com/google/uuid v1.6.0
 	github.com/jmoiron/sqlx v1.4.0
