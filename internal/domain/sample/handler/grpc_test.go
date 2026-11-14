@@ -8,7 +8,7 @@ import (
 
 	"github.com/VH288/tc-template/internal/domain/sample/entity"
 	"github.com/VH288/tc-template/internal/domain/sample/handler"
-	apperrors "github.com/VH288/tc-template/internal/pkg/errors"
+	apperrors "github.com/VH288/tc-sdk/errors"
 	samplev1 "github.com/VH288/tc-template/internal/proto/sample/v1"
 
 	"github.com/stretchr/testify/require"

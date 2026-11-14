@@ -6,7 +6,7 @@ import (
 	"github.com/VH288/tc-template/internal/domain/ports"
 	"github.com/VH288/tc-template/internal/domain/sample"
 	"github.com/VH288/tc-template/internal/domain/sample/entity"
-	"github.com/VH288/tc-template/internal/pkg/utils"
+	"github.com/VH288/tc-sdk/pagination"
 )
 
 type SampleUsecase struct {
@@ -94,7 +94,7 @@ func (u *SampleUsecase) List(ctx context.Context, page, perPage int) ([]entity.S
 		defer end()
 	}
 
-	page, perPage, offset := utils.NormalizePagination(page, perPage)
+	page, perPage, offset := pagination.NormalizePagination(page, perPage)
 	items, total, err := u.repo.List(ctx, perPage, offset)
 	if err != nil {
 		if u.metrics != nil {

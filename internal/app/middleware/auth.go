@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	apperrors "github.com/VH288/tc-template/internal/pkg/errors"
-	"github.com/VH288/tc-template/internal/pkg/formatter"
+	apperrors "github.com/VH288/tc-sdk/errors"
+	"github.com/VH288/tc-sdk/formatter"
 )
 
 // APIKeyAuth protects routes with X-API-Key when a non-placeholder secret is configured.

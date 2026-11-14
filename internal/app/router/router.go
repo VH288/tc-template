@@ -8,7 +8,7 @@ import (
 	"github.com/VH288/tc-template/internal/infrastructure/database"
 	"github.com/VH288/tc-template/internal/infrastructure/metrics"
 	"github.com/VH288/tc-template/internal/pkg/constant"
-	"github.com/VH288/tc-template/internal/pkg/formatter"
+	"github.com/VH288/tc-sdk/formatter"
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
 	"github.com/jmoiron/sqlx"

@@ -8,7 +8,7 @@ import (
 	"github.com/VH288/tc-template/internal/domain/sample/entity"
 	"github.com/VH288/tc-template/internal/domain/sample/usecase"
 	"github.com/VH288/tc-template/internal/infrastructure/telemetry"
-	apperrors "github.com/VH288/tc-template/internal/pkg/errors"
+	apperrors "github.com/VH288/tc-sdk/errors"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"

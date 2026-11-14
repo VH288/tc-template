@@ -8,10 +8,10 @@ import (
 	"github.com/VH288/tc-template/internal/domain/sample"
 	"github.com/VH288/tc-template/internal/domain/sample/dto"
 	"github.com/VH288/tc-template/internal/domain/sample/mapper"
-	apperrors "github.com/VH288/tc-template/internal/pkg/errors"
-	"github.com/VH288/tc-template/internal/pkg/formatter"
-	"github.com/VH288/tc-template/internal/pkg/utils"
-	"github.com/VH288/tc-template/internal/pkg/validator"
+	apperrors "github.com/VH288/tc-sdk/errors"
+	"github.com/VH288/tc-sdk/formatter"
+	"github.com/VH288/tc-sdk/pagination"
+	"github.com/VH288/tc-sdk/validator"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -57,7 +57,7 @@ func (h *HTTPHandler) List(w http.ResponseWriter, r *http.Request) {
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	perPage, _ := strconv.Atoi(r.URL.Query().Get("per_page"))
 
-	page, perPage, _ = utils.NormalizePagination(page, perPage)
+	page, perPage, _ = pagination.NormalizePagination(page, perPage)
 	items, total, err := h.usecase.List(r.Context(), page, perPage)
 	if err != nil {
 		formatter.Fail(w, err)
@@ -68,7 +68,7 @@ func (h *HTTPHandler) List(w http.ResponseWriter, r *http.Request) {
 		Page:       page,
 		PerPage:    perPage,
 		Total:      total,
-		TotalPages: utils.TotalPages(total, perPage),
+		TotalPages: pagination.TotalPages(total, perPage),
 	})
 }
 

@@ -9,8 +9,8 @@ import (
 	"github.com/VH288/tc-template/internal/domain/sample/dto"
 	"github.com/VH288/tc-template/internal/domain/sample/entity"
 	"github.com/VH288/tc-template/internal/domain/sample/handler"
-	apperrors "github.com/VH288/tc-template/internal/pkg/errors"
-	"github.com/VH288/tc-template/internal/pkg/formatter"
+	apperrors "github.com/VH288/tc-sdk/errors"
+	"github.com/VH288/tc-sdk/formatter"
 	"github.com/VH288/tc-template/internal/pkg/testutil"
 
 	"github.com/go-chi/chi/v5"

@@ -13,8 +13,8 @@ import (
 	samplehandler "github.com/VH288/tc-template/internal/domain/sample/handler"
 	"github.com/VH288/tc-template/internal/domain/sample/usecase"
 	"github.com/VH288/tc-template/internal/infrastructure/telemetry"
-	apperrors "github.com/VH288/tc-template/internal/pkg/errors"
-	"github.com/VH288/tc-template/internal/pkg/formatter"
+	apperrors "github.com/VH288/tc-sdk/errors"
+	"github.com/VH288/tc-sdk/formatter"
 	"github.com/VH288/tc-template/internal/pkg/testutil"
 
 	"github.com/stretchr/testify/require"

@@ -6,7 +6,7 @@ import (
 	"github.com/VH288/tc-template/internal/domain/ports"
 	"github.com/VH288/tc-template/internal/domain/sample"
 	"github.com/VH288/tc-template/internal/domain/sample/entity"
-	apperrors "github.com/VH288/tc-template/internal/pkg/errors"
+	apperrors "github.com/VH288/tc-sdk/errors"
 	samplev1 "github.com/VH288/tc-template/internal/proto/sample/v1"
 
 	"google.golang.org/grpc/codes"
