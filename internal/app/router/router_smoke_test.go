@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"testing"
 
+	apperrors "github.com/VH288/tc-sdk/errors"
+	"github.com/VH288/tc-sdk/formatter"
+	"github.com/VH288/tc-sdk/httpmiddleware"
 	"github.com/VH288/tc-template/internal/app/middleware"
 	"github.com/VH288/tc-template/internal/app/router"
 	"github.com/VH288/tc-template/internal/domain/sample"
@@ -13,8 +16,6 @@ import (
 	samplehandler "github.com/VH288/tc-template/internal/domain/sample/handler"
 	"github.com/VH288/tc-template/internal/domain/sample/usecase"
 	"github.com/VH288/tc-template/internal/infrastructure/telemetry"
-	apperrors "github.com/VH288/tc-sdk/errors"
-	"github.com/VH288/tc-sdk/formatter"
 	"github.com/VH288/tc-template/internal/pkg/testutil"
 
 	"github.com/stretchr/testify/require"
@@ -86,9 +87,9 @@ func buildTestHandler(repo sample.Repository, secret string) http.Handler {
 		SampleHTTP: h,
 		Middlewares: []func(http.Handler) http.Handler{
 			middleware.Recoverer(telemetry.DiscardLogger()),
-			middleware.RequestID,
+			httpmiddleware.RequestID,
 			middleware.Metrics,
-			middleware.Logging(telemetry.DiscardLogger()),
+			httpmiddleware.Logging(telemetry.DiscardLogger()),
 		},
 		APIAuth: auth,
 		DB:      nil,

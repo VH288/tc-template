@@ -14,21 +14,26 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"go.opentelemetry.io/otel/trace"
 
+	"github.com/VH288/tc-sdk/httpmiddleware"
 	"github.com/VH288/tc-template/internal/app/middleware"
 	"github.com/VH288/tc-template/internal/infrastructure/metrics"
 )
 
 func TestMetricsAndTracingMiddleware(t *testing.T) {
+	oldProvider := otel.GetTracerProvider()
+	oldPropagator := otel.GetTextMapPropagator()
 	sr := tracetest.NewSpanRecorder()
 	tp := sdktrace.NewTracerProvider(sdktrace.WithSpanProcessor(sr))
 	otel.SetTracerProvider(tp)
-	defer func() {
+	t.Cleanup(func() {
+		otel.SetTracerProvider(oldProvider)
+		otel.SetTextMapPropagator(oldPropagator)
 		_ = tp.Shutdown(context.Background())
-	}()
+	})
 
 	var capturedSpan trace.Span
 	r := chi.NewRouter()
-	r.Use(middleware.Tracing("test-service"))
+	r.Use(httpmiddleware.Tracing("test-service"))
 	r.Use(middleware.Metrics)
 	r.Get("/test/{id}", func(w http.ResponseWriter, req *http.Request) {
 		capturedSpan = trace.SpanFromContext(req.Context())

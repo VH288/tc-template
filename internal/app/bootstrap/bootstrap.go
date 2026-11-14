@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/VH288/tc-sdk/httpmiddleware"
 	"github.com/VH288/tc-template/internal/app/middleware"
 	"github.com/VH288/tc-template/internal/app/router"
 	"github.com/VH288/tc-template/internal/config"
@@ -44,9 +45,9 @@ func (c *Container) middlewares() []func(http.Handler) http.Handler {
 	return []func(http.Handler) http.Handler{
 		middleware.CORS,
 		middleware.Recoverer(c.Logger),
-		middleware.RequestID,
-		middleware.Tracing(c.Config.Observability.ServiceName),
+		httpmiddleware.RequestID,
+		httpmiddleware.Tracing(c.Config.Observability.ServiceName),
 		middleware.Metrics,
-		middleware.Logging(c.Logger),
+		httpmiddleware.Logging(c.Logger),
 	}
 }

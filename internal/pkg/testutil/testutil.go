@@ -10,14 +10,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/VH288/tc-template/internal/pkg/helper"
+	"github.com/VH288/tc-sdk/requestid"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
 func NewContext() context.Context {
-	return helper.WithRequestID(context.Background(), uuid.NewString())
+	return requestid.WithRequestID(context.Background(), uuid.NewString())
 }
 
 func NewContextWithTimeout(t *testing.T, d time.Duration) (context.Context, context.CancelFunc) {
