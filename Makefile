@@ -1,9 +1,15 @@
-.PHONY: help run run-api run-grpc proto migrate-up migrate-down migrate-status test test-unit tidy build lint doc-sync
+.PHONY: help run run-api run-grpc proto migrate-up migrate-down migrate-status test test-unit tidy build lint doc-sync docker-build docker-run
 
 APP_NAME ?= tc-template
 CONFIG ?= configs/config.yaml
 GO ?= go
 PROTOC ?= protoc
+DOCKER ?= docker
+IMAGE ?= $(APP_NAME):latest
+HTTP_PORT ?= 8081
+GRPC_PORT ?= 7000
+DOCKER_NETWORK ?= tools_backend
+DB_HOST ?= postgres
 
 help:
 	@echo "Targets:"
@@ -19,6 +25,8 @@ help:
 	@echo "  build               - build api, grpc, and migrate binaries"
 	@echo "  lint                - run go vet"
 	@echo "  doc-sync            - synchronize OpenAPI specs into swagger catalog"
+	@echo "  docker-build        - build container image ($(IMAGE))"
+	@echo "  docker-run          - run image on $(DOCKER_NETWORK) with $(CONFIG)"
 run: run-api
 
 run-api:
@@ -61,3 +69,12 @@ lint:
 
 doc-sync:
 	$(GO) run scripts/sync-docs.go
+
+docker-build:
+	$(DOCKER) build -t $(IMAGE) .
+
+docker-run:
+	$(DOCKER) run --rm --network $(DOCKER_NETWORK) -p $(HTTP_PORT):8081 -p $(GRPC_PORT):7000 \
+		--mount "type=bind,src=$(abspath $(CONFIG)),dst=/app/configs/config.yaml,readonly" \
+		-e DB_HOST=$(DB_HOST) \
+		$(IMAGE)
