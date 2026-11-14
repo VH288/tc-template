@@ -3,14 +3,12 @@ package handler
 import (
 	"context"
 
+	"github.com/VH288/tc-sdk/grpcerrors"
 	"github.com/VH288/tc-template/internal/domain/ports"
 	"github.com/VH288/tc-template/internal/domain/sample"
 	"github.com/VH288/tc-template/internal/domain/sample/entity"
-	apperrors "github.com/VH288/tc-sdk/errors"
 	samplev1 "github.com/VH288/tc-template/internal/proto/sample/v1"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -31,7 +29,7 @@ func (h *GRPCHandler) CreateSample(ctx context.Context, req *samplev1.CreateSamp
 	result, err := h.usecase.Create(ctx, req.GetName(), req.GetDescription(), req.GetStatus())
 	h.recordMetrics("CreateSample", err)
 	if err != nil {
-		return nil, toGRPCError(err)
+		return nil, grpcerrors.FromError(err)
 	}
 	return toProtoSample(result), nil
 }
@@ -40,7 +38,7 @@ func (h *GRPCHandler) GetSample(ctx context.Context, req *samplev1.GetSampleRequ
 	result, err := h.usecase.GetByID(ctx, req.GetId())
 	h.recordMetrics("GetSample", err)
 	if err != nil {
-		return nil, toGRPCError(err)
+		return nil, grpcerrors.FromError(err)
 	}
 	return toProtoSample(result), nil
 }
@@ -52,7 +50,7 @@ func (h *GRPCHandler) ListSamples(ctx context.Context, req *samplev1.ListSamples
 	samples, total, err := h.usecase.List(ctx, page, perPage)
 	h.recordMetrics("ListSamples", err)
 	if err != nil {
-		return nil, toGRPCError(err)
+		return nil, grpcerrors.FromError(err)
 	}
 
 	items := make([]*samplev1.SampleResponse, len(samples))
@@ -72,7 +70,7 @@ func (h *GRPCHandler) UpdateSample(ctx context.Context, req *samplev1.UpdateSamp
 	result, err := h.usecase.Update(ctx, req.GetId(), req.GetName(), req.GetDescription(), req.GetStatus())
 	h.recordMetrics("UpdateSample", err)
 	if err != nil {
-		return nil, toGRPCError(err)
+		return nil, grpcerrors.FromError(err)
 	}
 	return toProtoSample(result), nil
 }
@@ -81,7 +79,7 @@ func (h *GRPCHandler) DeleteSample(ctx context.Context, req *samplev1.DeleteSamp
 	err := h.usecase.Delete(ctx, req.GetId())
 	h.recordMetrics("DeleteSample", err)
 	if err != nil {
-		return nil, toGRPCError(err)
+		return nil, grpcerrors.FromError(err)
 	}
 	return &samplev1.DeleteSampleResponse{Success: true}, nil
 }
@@ -108,35 +106,5 @@ func toProtoSample(s *entity.Sample) *samplev1.SampleResponse {
 		Status:      s.Status,
 		CreatedAt:   timestamppb.New(s.CreatedAt),
 		UpdatedAt:   timestamppb.New(s.UpdatedAt),
-	}
-}
-
-func toGRPCError(err error) error {
-	if err == nil {
-		return nil
-	}
-
-	appErr, ok := apperrors.As(err)
-	if !ok {
-		return status.Error(codes.Internal, "internal error")
-	}
-
-	switch appErr.Code {
-	case apperrors.CodeNotFound:
-		return status.Error(codes.NotFound, appErr.Message)
-	case apperrors.CodeValidation, apperrors.CodeBadRequest:
-		return status.Error(codes.InvalidArgument, appErr.Message)
-	case apperrors.CodeConflict:
-		return status.Error(codes.AlreadyExists, appErr.Message)
-	case apperrors.CodeUnauthorized:
-		return status.Error(codes.Unauthenticated, appErr.Message)
-	case apperrors.CodeForbidden:
-		return status.Error(codes.PermissionDenied, appErr.Message)
-	case apperrors.CodeUnavailable:
-		return status.Error(codes.Unavailable, appErr.Message)
-	case apperrors.CodeTimeout:
-		return status.Error(codes.DeadlineExceeded, appErr.Message)
-	default:
-		return status.Error(codes.Internal, appErr.Message)
 	}
 }
